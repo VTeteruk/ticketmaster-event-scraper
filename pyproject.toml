@@ -1,0 +1,10 @@
+[project]
+name = "ticketmaster-event-scraper"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "environs>=15.1.0",
+    "seleniumbase>=4.51.12",
+]
