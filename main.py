@@ -1,6 +1,6 @@
 import time
 
-from core.config import DOMAIN, EVENT, PRICE_FROM, PRICE_TO, QUANTITY
+from core.config import DOMAIN, EVENT, PRICE_FROM, PRICE_TO, QUANTITY, EXCLUDE_FIRST
 from services.scraper import TicketmasterScraper
 
 
@@ -14,8 +14,9 @@ def main() -> None:
 
         scraper.wait_for_tickets()
 
-        for _ in range(20):
-            scraper.reload_tickets(QUANTITY)
+        scraper.book_tickets(EXCLUDE_FIRST)
+
+        time.sleep(1000)
 
 
 if __name__ == "__main__":

@@ -44,7 +44,10 @@ class TicketmasterScraper:
         self.sb.execute_script("document.querySelector('select#filter-bar-quantity').focus();")
         self.sb.press_keys("select#filter-bar-quantity", str(quantity))
 
-    def book_tickets(self) -> None:
-        count = len(self.sb.find_elements("div[data-analytics='offer-card']"))
-        index = random.randint(3, count) # NOT TO CHOSE FIRST ONES TODO: move to env
-        self.sb.click(f"(//div[@data-analytics='offer-card'])[{index}]", by="xpath")
+    def book_tickets(self, exclude_first: int = 0, timeout: int = 20) -> None:
+        tickets = self.sb.find_elements("div[data-analytics='offer-card']")
+        start = min(exclude_first, len(tickets) - 1)
+        ticket = random.choice(tickets[start:])
+        ticket.click()
+
+        self.sb.click("//button[@data-analytics='quick-pick-buy-now']", timeout=timeout)
