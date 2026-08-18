@@ -1,7 +1,11 @@
 import random
+import time
 from contextlib import ExitStack
+from typing import Optional
 
 import seleniumbase
+
+from core.config import DOMAIN
 
 
 class TicketmasterScraper:
@@ -27,14 +31,27 @@ class TicketmasterScraper:
     def __getattr__(self, name):
         return getattr(self.sb, name)
 
+    def register(self, email, password, timeout: int = 20) -> None:
+        self.sb.open(DOMAIN)
+        self.sb.click("//button[@data-testid='accountLink']", by="xpath", timeout=timeout)
+
+        self.sb.type("//input[@name='email']", email, by="xpath", timeout=timeout)
+        self.sb.click("//button[@name='sign-in']", by="xpath", timeout=timeout)
+        self.sb.type("//input[@name='password']", password, by="xpath", timeout=timeout)
+
+        self.sb.click("//button[@name='sign-in']", by="xpath", timeout=timeout)
+
+        self.sb.click('button:contains("Not Right Now")', timeout=timeout)
+
+
     def open_event(self, url: str) -> None:
         self.sb.open(url)
 
-    def wait_for_tickets(self, timeout=15) -> None:
+    def wait_for_filters(self, timeout=15) -> None:
         self.sb.wait_for_element("//span[@data-bdd='quick-picks-sort-button-asc']", by="xpath", timeout=timeout)
 
-    def accept_acknowledge(self) -> None:
-        self.sb.click("//button[@data-analytics='accept-modal-accept-button']", by="xpath")
+    def accept_acknowledge(self, timeout=15) -> None:
+        self.sb.click("//button[@data-analytics='accept-modal-accept-button']", by="xpath", timeout=timeout)
 
     def set_price_range(self, price_from: int, price_to: int) -> None:
         self.sb.type("//input[@aria-describedby='label-description-min']", str(price_from), by="xpath")
@@ -51,3 +68,11 @@ class TicketmasterScraper:
         ticket.click()
 
         self.sb.click("//button[@data-analytics='quick-pick-buy-now']", timeout=timeout)
+
+    def wait_for_redirecting(self, timeout: int = 15) -> Optional[str]:
+        for _ in range(timeout):
+            current_url = self.sb.get_current_url()
+            if "timerData" in current_url:
+                return current_url
+            time.sleep(1)
+        return None
