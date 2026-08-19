@@ -3,4 +3,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Tickets:
-    pass
+    url: str
+    event_url: str
+    email: str
+    quantity: int
